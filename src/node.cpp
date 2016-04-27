@@ -3,7 +3,19 @@
 //
 
 #include "node.h"
-#define NULL
+
+Node *Node::appendChild(char base)
+{
+    // If the map does not find the value.
+    if(children.find(base) == children.end())
+    {
+        children[base] = new Node();
+
+        return children[base];
+    }
+
+    return nullptr;
+}
 
 /* Input: char (base)
  * Function: checks if a certain base exists for the current node
@@ -11,27 +23,12 @@
  */
 Node* Node::findChild(char base)
 {
-    Node* null = new Node();
-    null->setIndexMarker(-1);
-    
-    if(nodeChildren.empty()) { return null; };
-    
-    // Goes through every child
-    
-            
-    for ( int i = 0; i < nodeChildren.size(); i++ )
+    if(children.find(base) == children.end())
     {
-        // Current node is the child
-        Node* tempChild = nodeChildren.at(i);
-
-        // Child matched the content
-        if ( tempChild->getContent() == base )
-        {
-
-            // Return child
-            return tempChild;
-        }
+        return nullptr;
     }
-    
-    return null;
+    else
+    {
+        return children[base];
+    }
 }

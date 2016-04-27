@@ -6,52 +6,40 @@
 #define CS599_PROJECT_NODE_H
 
 #include <vector>
+#include <unordered_map>
 
 
 class Node
 {
     public:
         // Constructor
-        Node()
+        Node() {}
+
+        // Copy Constructor
+        Node(const Node &obj)
         {
-            content = ' ';
-            index = false;
-            nodeChildren.reserve(4);
+            // Invokes the unordered_map's copy constructor, which in turn invokes the nodes' copy constructors.
+            this->children = obj.children;
         }
 
         // Deconstructor
-        ~Node() {}
-
-        // Return base
-        char getContent() { return content; }
-
-        // Set base
-        void setContent(char base) { content = base; }
-
-        // index if query ends at current node, 0 otherwise
-        int getIndexMarker() { return index; }
-
-        // Set index if end query, naturally 0
-        void setIndexMarker(int newIndex) { index = newIndex; }
+        ~Node()
+        {
+            this->children.clear();
+        }
 
         // Add a child to the current node's vector
-        void appendChild(Node* child) { nodeChildren.push_back(child); } // push_back == append
+        Node* appendChild(char base);
 
         // Prototype
         Node* findChild(char base);
 
         // Returns vector of children if found
-        std::vector<Node*> children() { return nodeChildren; }
+        std::unordered_map<char, Node*> getChildren() { return children; }
 
     private:
-        // Single base
-        char content;
-
-        // index of query
-        int index;
-        
-        // Dynamic-size array that holds all children
-        std::vector<Node*> nodeChildren;
+        // Dynamic-size dictionary that holds all children where the key is the base.
+        std::unordered_map<char, Node*> children;
 };
 
 
