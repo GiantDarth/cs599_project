@@ -47,12 +47,12 @@ std::vector<std::vector<double>> benchmark_reads(std::string pathname)
             start_time = std::chrono::high_resolution_clock::now();
             for(int iter = 0; iter < ITER_COUNT; iter++)
             {
+                Trie* trie = new Trie();
                 for(json &read : reads)
                 {
-                    Trie* trie = new Trie();
                     trie->addQuery(read);
-                    delete trie;
                 }
+                delete trie;
             }
             end_time = std::chrono::high_resolution_clock::now();
             duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
