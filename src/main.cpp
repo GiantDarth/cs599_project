@@ -2,79 +2,134 @@
 #include <fstream>
 #include <random>
 #include <chrono>
+
+#include "json.hpp"
 #include "trie.h"
 
 using namespace std;
+using json = nlohmann::json;
 
 // Returns time in seconds.
-std::chrono::duration<double> benchmark(unsigned long query_size, unsigned long subject_size);
-std::string random_sequence(unsigned long size, std::mt19937_64 rand_gen);
+std::vector<std::vector<double>> benchmark_reads(std::string pathname);
+std::vector<std::vector<double>> benchmark_subject(std::string pathname);
 
-std::chrono::duration<double> benchmark(unsigned long query_count, unsigned long subject_size)
+std::vector<std::vector<double>> benchmark_reads(std::string pathname)
 {
-    std::mt19937_64 rand_gen;
     const int ITER_COUNT = 100;
-    const int MER_LEN = 50;
+
+    json read_obj;
+    std::ifstream file;
+    file.open(pathname);
+    if(file.is_open())
+    {
+        while(!file.eof())
+        {
+            file >> read_obj;
+        }
+    }
+    file.close();
 
     std::chrono::time_point<std::chrono::high_resolution_clock> start_time, end_time;
-    start_time = std::chrono::high_resolution_clock::now();
-    for(int iter = 0; iter < ITER_COUNT; iter++)
+
+    std::vector<std::string> error_rates = { "low", "high" };
+    std::chrono::nanoseconds duration;
+    std::vector<std::vector<double>> test_runs;
+
+    for(int i = 0; i < error_rates.size(); i++)
     {
-        Trie* trie = new Trie();
-        for(int i = 0; i < query_count; i++)
+        json &rate = read_obj[error_rates[i]];
+        test_runs.push_back(std::vector<double>());
+
+        std::cout << "Testing " << error_rates[i] << " error rate of " << rate["rate"] << std::endl;
+        for(json &reads : rate["cases"])
         {
-            trie->addQuery(random_sequence(MER_LEN, rand_gen));
+            std::cout << "Running " << reads.size() << " queries..." << std::endl;
+            start_time = std::chrono::high_resolution_clock::now();
+            for(int iter = 0; iter < ITER_COUNT; iter++)
+            {
+                for(json &read : reads)
+                {
+                    Trie* trie = new Trie();
+                    trie->addQuery(read);
+                    delete trie;
+                }
+            }
+            end_time = std::chrono::high_resolution_clock::now();
+            duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
+            test_runs[i].push_back(duration.count() / (1000000000.0 * ITER_COUNT));
+            std::cout << "Time: " << test_runs[i].back() << " s" << std::endl;
         }
-        std::string subject = random_sequence(subject_size, rand_gen);
-        trie->searchTrieRecursively(trie->getRoot(), subject, 1);
-
-        delete trie;
     }
-    end_time = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> exec_duration = end_time - start_time;
-    // Account for the average duration.
-    exec_duration /= ITER_COUNT;
 
-    return exec_duration;
+    return test_runs;
 }
 
-std::string random_sequence(unsigned long size, std::mt19937_64 rand_gen)
+std::vector<std::vector<double>> benchmark_subject(std::string pathname)
 {
-    std::uniform_int_distribution<unsigned long long> dist(0,3);
-    unsigned char table[4] = {'A', 'C', 'G', 'T'};
+    const int ITER_COUNT = 100;
 
-    std::string sequence;
-    sequence.reserve(size);
-
-    for(unsigned long i = 0; i < size; i++)
+    json subj_tests;
+    std::ifstream file;
+    file.open(pathname);
+    if(file.is_open())
     {
-        sequence[i] = table[dist(rand_gen)];
+        while (!file.eof())
+        {
+            file >> subj_tests;
+        }
+    }
+    file.close();
+
+    std::chrono::time_point<std::chrono::high_resolution_clock> start_time, end_time;
+
+    std::vector<std::string> error_rates = { "low", "high" };
+    std::chrono::nanoseconds duration;
+    std::vector<std::vector<double>> test_runs;
+
+    for(json &test : subj_tests)
+    {
+        test_runs.push_back(std::vector<double>());
+
+        int size = test["size"];
+        for(int i = 0; i < error_rates.size(); i++)
+        {
+            json &rate = test[error_rates[i]];
+            std::cout << "Testing " << size / 1000 << "k subject w/ " << error_rates[i] << " error rate of "
+                << rate["rate"] << std::endl;
+            duration = std::chrono::nanoseconds(0);
+            for(int iter = 0; iter < ITER_COUNT; iter++)
+            {
+                Trie* trie = new Trie();
+                for(json &read : rate["reads"])
+                {
+                    trie->addQuery(read);
+                }
+                start_time = std::chrono::high_resolution_clock::now();
+                trie->searchTrieRecursively(trie->getRoot(), test["subject"], 1);
+                end_time = std::chrono::high_resolution_clock::now();
+                duration += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
+                delete trie;
+            }
+            test_runs[i].push_back(duration.count() / (1000000000.0 * ITER_COUNT));
+            std::cout << "Time: " << test_runs[i].back() << " s" << std::endl;
+        }
     }
 
-    return sequence;
+    return test_runs;
 }
 
 // Test program
 int main()
 {
-    // Benchmark construction, search, and destruction.
-    unsigned int query_counts[4] = {100, 1000, 10000, 100000};
-    for(unsigned int count : query_counts)
-    {
-        std::cout << "Benchmarking query count of " << count << "..." << std::endl;
-        std::chrono::duration<double> exec_duration = benchmark(count, 1000000);
-        std::cout << "Done." << std::endl << "Time: " << exec_duration.count() << " s" << std::endl;
-    }
+    // Benchmark prefix trie construction
+    std::cout << "Benchmarking reads..." << std::endl;
+    benchmark_reads("read_tests.json");
+    std::cout << "Done." << std::endl << std::endl;
 
-    std::cout << std::endl;
-    unsigned int subj_sizes[4] = {10000, 100000, 1000000, 10000000};
-    for(unsigned int size : subj_sizes)
-    {
-        std::cout << "Benchmarking subject size " << size << "..." << std::endl;
-        std::chrono::duration<double> exec_duration = benchmark(50, size);
-        std::cout << "Done." << std::endl << "Time: " << exec_duration.count() << " s" << std::endl;
-    }
-
+    // Benchmark exhaustive search
+    std::cout << "Benchmarking exhaustive search..." << std::endl;
+    benchmark_subject("subj_tests.json");
+    std::cout << "Done." << std::endl << std::endl;
 
 
 	// Create trie
