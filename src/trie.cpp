@@ -65,14 +65,18 @@ void Trie::exhaustiveSearch(std::string subject, unsigned short limit)
     {
         for(unsigned int s = 0; s < subject.length() - QUERY_LEN + 1; s++)
         {
+            // If index is already previous marked, skip it.
+            if(marked_array[s / 8] & (0x1 << (s % 8)))
+            {
+                continue;
+            }
+
             current = root;
-            std::string path = "";
             unsigned short mismatch = 0;
             for (unsigned int q = 0; q < QUERY_LEN; q++)
             {
                 for (char base : BASES)
                 {
-                    path += base;
                     if((current = current->findChild(subject[s + q])) == nullptr)
                     {
                         if(++mismatch <= l)
@@ -85,7 +89,7 @@ void Trie::exhaustiveSearch(std::string subject, unsigned short limit)
 
             if(mismatch <= l)
             {
-                marked_array.set(s);
+                marked_array[s / 8] |= 0x1 << (s % 8);
             }
         }
     }
