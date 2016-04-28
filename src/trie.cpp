@@ -4,6 +4,8 @@
 
 #include "trie.h"
 #include <iostream>
+#include <queue>
+#include <bitset>
 
 // Constructor --> create an empty root
 Trie::Trie()
@@ -42,16 +44,52 @@ void Trie::addQuery(std::string query)
         // No child was found, create one
         else
         {
-            // If node doesn't already exist.
-            if((current = current->appendChild(query[i])) != nullptr)
-            {
-                this->numberOfNodes++;          // keep track of size of the tree i.e how many nodes
-            }
+            current = current->appendChild(query[i]);
+            numberOfNodes++;
         }
     }
     
 }
 
+void Trie::exhaustiveSearch(std::string subject, unsigned short limit)
+{
+    // A queue of tuples such that (current_path, current_mismatch_score, current_node_ptr)
+    std::queue<std::tuple<std::string, unsigned short, Node*>> queue;
+    // Bit array for marking off resultant indices under subject
+    std::bitset<subject.length()> marked_array;
+    Node *current;
+    const std::string BASES = "ACGT";
+
+    Node* current;
+    for(unsigned int l = 0; l < limit; l++)
+    {
+        for(unsigned int s = 0; s < subject.length() - QUERY_LEN + 1; s++)
+        {
+            current = root;
+            std::string path = "";
+            unsigned short mismatch = 0;
+            for (unsigned int q = 0; q < QUERY_LEN; q++)
+            {
+                for (char base : BASES)
+                {
+                    path += base;
+                    if((current = current->findChild(subject[s + q])) == nullptr)
+                    {
+                        if(++mismatch <= l)
+                        {
+                            queue.push(std::make_tuple(path, ++mismatch, current));
+                        }
+                    }
+                }
+            }
+
+            if(mismatch <= l)
+            {
+                marked_array.set(s);
+            }
+        }
+    }
+}
 
 ///* Input: std::string
 //  (subject)

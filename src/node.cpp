@@ -4,16 +4,17 @@
 
 #include "node.h"
 
-Node *Node::appendChild(char base)
+Node* Node::appendChild(char base)
 {
     // If the map does not find the value.
-    if(children.find(base) == children.end())
+    if(findChild(base) == nullptr)
     {
         children[base] = new Node();
 
         return children[base];
     }
 
+    // Else return null
     return nullptr;
 }
 

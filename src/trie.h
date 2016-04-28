@@ -24,6 +24,7 @@ class Trie
         int searchTrie(std::string subject);
         void searchTrieRecursively(Node* current, std::string subject, int limit, int currentMismatch = 0, int subjectIndex = 0);
         bool strictSearch(std::string subject);
+        void exhaustiveSearch(std::string subject, unsigned short limit);
         int getMismatch() { return this->bestMismatch; };
         int getIndex() { return this->bestIndex; };
         Node* getRoot() { return this->root; };

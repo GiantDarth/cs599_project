@@ -5,9 +5,7 @@
 #ifndef CS599_PROJECT_NODE_H
 #define CS599_PROJECT_NODE_H
 
-#include <vector>
 #include <unordered_map>
-
 
 class Node
 {
