@@ -6,6 +6,7 @@
 #include <iostream>
 #include <queue>
 #include <bitset>
+#include <stack>
 
 // Constructor --> create an empty root
 Trie::Trie()
@@ -54,13 +55,12 @@ void Trie::addQuery(std::string query)
 void Trie::exhaustiveSearch(std::string subject, unsigned short limit)
 {
     // A queue of tuples such that (current_path, current_mismatch_score, current_node_ptr)
-    std::queue<std::tuple<std::string, unsigned short, Node*>> queue;
+    std::stack<std::tuple<std::string, unsigned short, Node*>> stack;
     // Bit array for marking off resultant indices under subject
     std::bitset<subject.length()> marked_array;
-    Node *current;
-    const std::string BASES = "ACGT";
+    const unsigned short QUERY_LEN = 50;
 
-    Node* current;
+    Node *current, *next;
     for(unsigned int l = 0; l < limit; l++)
     {
         for(unsigned int s = 0; s < subject.length() - QUERY_LEN + 1; s++)
@@ -73,19 +73,49 @@ void Trie::exhaustiveSearch(std::string subject, unsigned short limit)
 
             current = root;
             unsigned short mismatch = 0;
-            for (unsigned int q = 0; q < QUERY_LEN; q++)
+            unsigned int q = 0;
+            while(current != nullptr || !stack.empty())
             {
-                for (char base : BASES)
+                if(current == nullptr && !stack.empty())
                 {
-                    if((current = current->findChild(subject[s + q])) == nullptr)
+
+                }
+                // A mismatch has occurred.
+                if((next = current->findChild(subject[s + q])) == nullptr)
+                {
+                    for(char base : "ACGT")
                     {
-                        if(++mismatch <= l)
+                        if(subject[s + q] == base)
                         {
-                            queue.push(std::make_tuple(path, ++mismatch, current));
+                            continue;
+                        }
+
+                        if(stack.empty())
+                        {
+                            stack.push(std::make_tuple(subject.substr(s, s + q), 1, next));
+                        }
+                        else
+                        {
+                            stack.push(std::make_tuple(std::get<0>(stack.top()) + base,
+                                                       std::get<1>(stack.top()) + 1, next));
                         }
                     }
+                    stack.push(std::make_tuple());
                 }
             }
+//            for (unsigned int q = 0; q < QUERY_LEN; q++)
+//            {
+//                for (char base : BASES)
+//                {
+//                    if((current = current->findChild(subject[s + q])) == nullptr)
+//                    {
+//                        if(++mismatch <= l)
+//                        {
+//                            stack.push(std::make_tuple(path, ++mismatch, current));
+//                        }
+//                    }
+//                }
+//            }
 
             if(mismatch <= l)
             {

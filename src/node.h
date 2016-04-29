@@ -32,9 +32,6 @@ class Node
         // Prototype
         Node* findChild(char base);
 
-        // Returns vector of children if found
-        std::unordered_map<char, Node*> getChildren() { return children; }
-
     private:
         // Dynamic-size dictionary that holds all children where the key is the base.
         std::unordered_map<char, Node*> children;
