@@ -1,0 +1,19 @@
+Found subject from index 286 to 336
+GAAACTGGACGCCAGGTACGGGACCATGCCTTTTAACCGATGCATCCAAC was the read matched, index number 7 with: 0 mismatches.
+Found subject from index 668 to 718
+CCATCCAACATGAGATCCCTGAGAGAGACGAATAGTCTTAGCACCGTTGT was the read matched, index number 1 with: 0 mismatches.
+Found subject from index 1106 to 1156
+ACTCGCTAGATACCGGTGTAAGCCGAATCCAGTCATCAACTGTTGAGGTT was the read matched, index number 8 with: 0 mismatches.
+Found subject from index 1616 to 1666
+AGGCGTGGCCCCCTACACGGTGTCGGATCTCCCCCCGCTGAACCAGTGCA was the read matched, index number 2 with: 1 mismatches.
+Mismatches at locations: < 1662 > 
+Found subject from index 2840 to 2890
+CTATATCTTACGACATTTCACCTAATAGCAGCCAGTGAGGGGATGGCTCA was the read matched, index number 6 with: 0 mismatches.
+Found subject from index 6628 to 6678
+AAACTAAGCGCACATAATGAAGGCTCAGCCACATAGCGCTTTACAACGTC was the read matched, index number 5 with: 0 mismatches.
+Found subject from index 7449 to 7499
+CTTTCCAAACTAGAGGATTTATTGCCAGTCGATGTCTTTGATGCAGGCCA was the read matched, index number 9 with: 0 mismatches.
+Found subject from index 8186 to 8236
+CGTAACGATGGGTCTGCCAACACCTTCATCTACGCAAGCGGTGGAGTTAT was the read matched, index number 3 with: 0 mismatches.
+Found subject from index 8920 to 8970
+GCTTCATGCGTTATTTACTCAGCGATGTGAGAGCAAGGGACTTCGGCTCG was the read matched, index number 4 with: 0 mismatches.

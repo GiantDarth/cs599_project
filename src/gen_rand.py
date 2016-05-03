@@ -70,3 +70,24 @@ if __name__ == '__main__':
     f.write(json.dumps(read_tests, sort_keys=False, indent=4))
     f.close()
     print("Created file " + f.name)
+
+    #generate subject with no errors in reads to test search methods
+    subj_tests = []
+    mersLen = 50
+    for size in [10000, 100000, 1000000]:
+        subject = random_sequence(size)
+        subj_obj = OrderedDict([('subject', subject), ('size', size)])
+
+
+        reads = []
+        for index in range(int(size/1000)):
+            tmpIndex = random.randrange(size-mersLen-1)
+            reads.append(subject[tmpIndex:tmpIndex+mersLen])
+
+        subj_obj['none'] = OrderedDict([('rate', 0), ('reads', reads)])
+        subj_tests.append(subj_obj)
+
+    f = open('subj_tests_no_errors.json', 'w')
+    f.write(json.dumps(subj_tests, sort_keys=False, indent=4))
+    f.close()
+    print("Created file " + f.name)

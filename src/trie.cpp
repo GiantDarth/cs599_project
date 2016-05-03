@@ -156,6 +156,7 @@ std::vector<Trie::map> Trie::searchTrieStack(std::string subject, int limit)
             map.index = nm.node->getIndexMarker();
             map.mismatches = currentMismatch;
             returned.push_back(map);
+            printf("\nadding result to map\n");
             continue;
         }
         
