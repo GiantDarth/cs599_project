@@ -3,6 +3,7 @@
 //
 
 #include "node.h"
+#include <stdlib.h> 
 
 /* Input: char (base)
  * Function: checks if a certain base exists for the current node
@@ -21,16 +22,20 @@ Node* Node::findChild(char base)
     for (unsigned int i = 0; i < nodeChildren.size(); i++ )
     {
         // Current node is the child
-        Node* tempChild = nodeChildren.at(i);
+        Node* tempChild = &nodeChildren.at(i);
 
         // Child matched the content
         if ( tempChild->getContent() == base )
         {
-
             // Return child
             return tempChild;
         }
     }
     
     return null;
+}
+Node::~Node() {
+    if (nodeChildren.size() >= 1) {nodeChildren.clear();}
+    
+    
 }

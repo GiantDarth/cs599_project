@@ -26,23 +26,20 @@ class Trie
         };
 
         struct nodeMismatch {
-            Node* node;
+            Node node;
             std::vector<int> mismatches;
         };
         void addQuery(std::string query);
         int searchTrie(std::string subject);
         std::vector<map> searchTrieStack(std::string subject, int limit);
-        int getMismatch() { return this->bestMismatch; };
-        int getIndex() { return this->bestIndex; };
         Node* getRoot() { return this->root; };
         int getSize() {return this->numberOfNodes;}
+        void clear(Node* node);
         
     private:
         Node* root;
-        int bestIndex;
-        int bestMismatch;
         int numberOfQuerys;
-        int numberOfNodes;      //keep track
+        int numberOfNodes;      
 };
 
 
