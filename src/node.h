@@ -6,7 +6,7 @@
 #define CS599_PROJECT_NODE_H
 
 #include <vector>
-
+#include <iostream>
 
 class Node
 {
@@ -19,7 +19,7 @@ class Node
         }
 
         // Deconstructor
-        ~Node() {}
+        ~Node();
 
         // Return base
         char getContent() { return content; }
@@ -34,13 +34,13 @@ class Node
         void setIndexMarker(int newIndex) { index = newIndex; }
 
         // Add a child to the current node's vector
-        void appendChild(Node* child) { nodeChildren.push_back(child); } // push_back == append
+        void appendChild(Node child) { nodeChildren.push_back(child); } // push_back == append
 
         // Prototype
         Node* findChild(char base);
 
         // Returns vector of children if found
-        std::vector<Node*> children() { return nodeChildren; }
+        std::vector<Node> children() { return nodeChildren; }
 
     private:
         // Single base
@@ -50,7 +50,7 @@ class Node
         int index;
         
         // Dynamic-size array that holds all children
-        std::vector<Node*> nodeChildren;
+        std::vector<Node> nodeChildren;
 };
 
 
