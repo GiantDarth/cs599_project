@@ -5,8 +5,7 @@
 #include "trie.h"
 #include <iostream>
 #include <stack>
-#include <stdlib.h>
-
+#include <queue>
 
 // Constructor --> create an empty root
 Trie::Trie()
@@ -14,12 +13,31 @@ Trie::Trie()
     root = new Node();
     root->setIndexMarker(-1);
     numberOfQuerys = 0;
+    bestMismatch = 99999999;
+    bestIndex = -1;
     numberOfNodes =0;
 }
 
 // Deconstructor --> free memory
 Trie::~Trie() {
-    Trie::clear(root);
+
+//    std::queue<Node*> nodesToDelete;
+//    Node* current = this->root ;
+//    nodesToDelete.push(current);
+//
+//    while(!nodesToDelete.empty()){
+//
+//        current = nodesToDelete.front();
+//        nodesToDelete.pop();
+//
+//        for(Node* node : current->children()){
+//            nodesToDelete.push(node);
+//        }
+//
+//        delete(current);
+//    }
+
+
 }
 
 /* Input: std::string
@@ -46,7 +64,7 @@ void Trie::addQuery(std::string query)
         Node* child = current->findChild(query[i]);
 
         // Child was found, go to it
-        if (child->getIndexMarker() != -1 )
+        if ( child->getIndexMarker() != -1 )
         {
             current = child;
         }
@@ -57,7 +75,7 @@ void Trie::addQuery(std::string query)
             Node* tmp = new Node();
             tmp->setIndexMarker(0);
             tmp->setContent(query[i]);
-            current->appendChild(*tmp);
+            current->appendChild(tmp);
             current = tmp;
             this->numberOfNodes++;          // keep track of size of the tree i.e how many nodes
 
@@ -68,7 +86,7 @@ void Trie::addQuery(std::string query)
             current->setIndexMarker(this->numberOfQuerys);
         }
     }
-
+    
 }
 
 
@@ -82,7 +100,7 @@ int Trie::searchTrie(std::string subject)
     Node* current = root;
 
     // Go until end of trie
-    while ( current->getIndexMarker() != -1 )
+    while ( current != NULL )
     {
 
         // Go until end of subject length
@@ -109,14 +127,14 @@ int Trie::searchTrie(std::string subject)
     // Failure
     return false;
 }
-/*
+/* 
  * This function will recursively search the prefix tree for the given subject,
- * Inputs:
+ * Inputs: 
  *      std::string subject      : The subject we are searching for
  *      int limit                : The maximum allowable number of mismatches (inclusive)
  * Outputs:
  *      vector<map>              : A vector of maps
- *
+ *                                      
  */
 
 std::vector<Trie::map> Trie::searchTrieStack(std::string subject, int limit)
@@ -126,21 +144,21 @@ std::vector<Trie::map> Trie::searchTrieStack(std::string subject, int limit)
     Trie::nodeMismatch nm;
 	// Convert all the root's children to type nodeMismatch (struct containting the node
 	// and a vector of where mismatches occur) and then add them into the stack
-    for (Node child : this->root->children()) {
+    for (Node* child : this->root->children()) {
         nm.node = child;
-        nm.mismatches = *new std::vector<int>;
+        nm.mismatches;
         s.push(nm);
     }
-
-    // while there are still branches left to search (ie nodeMismatches in the stack)
+    
+	// while there are still branches left to search (ie nodeMismatches in the stack)
     while (!s.empty()) {
-        // Pop the top element off the stack and get our current variables equal to where we are now
+		// Pop the top element off the stack and get our current variables equal to where we are now
         nm = s.top();
-        s.pop();
-        std::vector<int> currentMismatch = nm.mismatches;
-
+		s.pop();
+		std::vector<int> currentMismatch = nm.mismatches;
+        
         // Check for mismatch
-        if (subject[nm.mismatches.size()] != nm.node.getContent()) {
+        if (subject[nm.mismatches.size()] != nm.node->getContent()) {
             currentMismatch.push_back(1);
             int totalMismatch = 0;
             for(int i : currentMismatch) {
@@ -148,38 +166,29 @@ std::vector<Trie::map> Trie::searchTrieStack(std::string subject, int limit)
             }
             if (totalMismatch > limit) continue;
         }
-        else {
-            currentMismatch.push_back(0);
-        }
-
+		else {
+			currentMismatch.push_back(0);
+		}
+        
         // Reached end
-        if(nm.node.getIndexMarker() != 0) {
+        if(nm.node->getIndexMarker() != 0) {
             Trie::map map;
-            map.index = nm.node.getIndexMarker();
+            map.index = nm.node->getIndexMarker();
             map.mismatches = currentMismatch;
             returned.push_back(map);
-            map = (struct map){0};
+            //printf("\nadding result to map\n");
             continue;
         }
-
+        
         // Adds children to stack
-        for (Node child : nm.node.children()) {
-            Trie::nodeMismatch nmChild;
-            nmChild.node = child;
-            nmChild.mismatches = currentMismatch;
+        for (Node* child : nm.node->children()) {
+			Trie::nodeMismatch nmChild;
+			nmChild.node = child;
+			nmChild.mismatches = currentMismatch;
             s.push(nmChild);
         }
-
+        
     }
-
+    s.empty();
     return returned;
 }
-
-void Trie::clear(Node* node) {
-    if (!node->children().empty()){
-        for(Node child : node->children()) {
-            clear(&child);
-        }
-    }
-    node = NULL;
-};
